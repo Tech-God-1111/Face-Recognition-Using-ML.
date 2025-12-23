@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Security Camera</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0.8);
+            margin-bottom: 20px;
+            border-bottom: 2px solid #00ff00;
+        }
+        .header h1 {
+            margin: 0;
+            color: #00ff00;
+            font-size: 2.5em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            color: #ccc;
+        }
+        .video-container {
+            position: relative;
+            background: #000;
+            border: 3px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .video-container img {
+            width: 100%;
+            display: block;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: scale(1.05);
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid #00ff00;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .dashboard-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .dashboard-link a {
+            color: white;
+            text-decoration: none;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid #00ff00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        .dashboard-link a:hover {
+            background: #00ff00;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-link">
+        <a href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Face Security System</h1>
+            <p>Live Camera Feed with Facial Recognition</p>
+        </div>
+
+        <div class="video-container">
+            <img src="/video_feed" alt="Live Camera Feed">
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="location.href='/dashboard'">
+                <i class="fas fa-tachometer-alt"></i>
+                View Dashboard
+            </button>
+            <button class="btn btn-success" onclick="toggleFullscreen()">
+                <i class="fas fa-expand"></i>
+                Fullscreen
+            </button>
+            <button class="btn btn-danger" onclick="refreshFeed()">
+                <i class="fas fa-sync-alt"></i>
+                Refresh Feed
+            </button>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-indicator"></div>
+            <span>SYSTEM: ACTIVE</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-video"></i>
+            <span>CAMERA: LIVE</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-clock"></i>
+            <span id="currentTime">Loading...</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent =
+                now.toLocaleString('en-US', {
+                    hour12: true,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+        }
+
+        // Refresh video feed
+        function refreshFeed() {
+            const img = document.querySelector('.video-container img');
+            img.src = img.src.split('?')[0] + '?' + new Date().getTime();
+        }
+
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            const elem = document.querySelector('.video-container');
+
+            if (!document.fullscreenElement) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Auto-refresh feed every 5 seconds
+        setInterval(refreshFeed, 5000);
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+
+        // Initial time update
+        updateTime();
+    </script>
+</body>
+</html>
